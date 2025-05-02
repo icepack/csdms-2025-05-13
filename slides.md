@@ -169,20 +169,21 @@ where $n \approx 3$.
 
 ### Glen's flow law
 
-* Remember $\dot\varepsilon = \frac{\nabla u + \nabla u^\top}{2}$; the membrane stress is:
-$$M = \mu\left\\{\dot\varepsilon + \text{tr}(\dot\varepsilon)I\right\\} \equiv 2\mu\mathscr{C}\dot\varepsilon$$
-* ...where the viscosity is:
-$$\mu = A^{-1/n}\sqrt{\frac{\dot\varepsilon : \dot\varepsilon + \text{tr}(\dot\varepsilon)^2}{2}}^{\frac{1}{n} - 1} = A^{-1/n}|\dot\varepsilon|\_{\mathscr{C}}^{\frac{1}{n} - 1}$$
+* We need to introduce a *compliance* tensor $\mathscr A$:
+$$\mathscr A M \equiv \frac{1}{2}\left(M - \frac{\text{tr} M}{3}I\right)$$
+* Remember $\dot\varepsilon = \frac{\nabla u + \nabla u^\top}{2}$;
+$$\dot\varepsilon = 2A|M|\_{\mathscr A}^{n - 1}\mathscr A M$$
+where $|\cdot\|\_{\mathscr A}$ is an induced norm
 
 ----
 
 ### Sliding
 
 * Ice can slide at its base.
-Basal drag $\propto$ speed${}^{1/m}$:
-$$\tau = -C|u|^{\frac{1}{m} - 1}u$$
+Sliding $\propto$ basal stress${}^m$:
+$$u = -K|\tau|^{m - 1}\tau$$
 $m$ is somewhere between $n$ and $\infty$, not really sure
-* Basal friction depends on geology and hydrology -- subglacial hydrology is a "holy grail" problem.
+* Basal slipperiness $K$ depends on geology and hydrology -- subglacial hydrology is a "holy grail".
 
 ----
 
