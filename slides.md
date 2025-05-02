@@ -224,6 +224,17 @@ $$A \propto \exp(-Q / RT)$$
 
 ----
 
+### Requirements
+
+* Physical scientists want:
+  - working solvers with no hand-tuning
+  - to do weird things with flow and sliding laws
+  - to couple to other fields, e.g. hydrology, landscape
+  - fine-grained control of the simulation
+* **How do we make modeling tools that are both flexible and user-friendly?**
+
+----
+
 ### Summary
 
 * The things we need to get right:
@@ -235,37 +246,62 @@ $$A \propto \exp(-Q / RT)$$
 * We can do all this with the finite element method.
 
 ----
-
-### Requirements
-
-* Physical scientists want solvers for the mass, momentum, energy balance equations.
-* They will also want to:
-  - do weird things with flow and sliding laws
-  - couple to other fields, e.g. hydrology, landscape
-* **How do we make modeling tools that are both flexible and user-friendly?**
-
-----
-
 ### The finite element method
 
-* Students are familiar, but often uncomfortable, with differential equations.
+* Students are familiar with differential equations.
 * The finite element method uses variational forms.
 * **We have a pedagogy problem.**
 
 ----
 
-### Numerics
+### Variational forms
 
-* A typical numerical scheme uses operator splitting:
+* Let $\phi$ be some field with flux $F$ and sources $Q$.
+* The differential form of a conservation law:
+$$\partial\_t\phi + \nabla\cdot F = Q$$
+* The variational form: for all test functions $\psi$,
+$$\int\_\Omega\left\\{\partial\_t\phi\\;\psi - F\cdot\nabla\psi - Q\\;\psi\right\\}dx + \ldots = 0$$
+
+----
+
+### The finite element method
+
+* FEM in a nutshell: approximate $\phi$ and $\psi$ in a finite-dimensional subspace.
+* Implementation $\rightarrow$ lots of low-level C/C++ code.
+* This has in the past been the province of experts.
+
+----
+
+<img src="fenics-logo.png" height="170px"> <img src="firedrake-logo.png" height="160px"> <img src="devito-logo.png" height="150px">
+
+* New tools like FEniCS, Firedrake, Devito, dune-fem:
+  - Express the PDE in a **domain-specific language**
+  - **Generate** the low-level C code for you
+* You still decide on discretization, solution strategy.
+
+----
+
+### Firedrake
+
+* Example: the diffusion equation for some field $\phi$.
+* Math: for all test functions $\psi$,
+$$\int_\Omega\left\\{\partial\_t \phi\cdot\psi + k\nabla\phi\cdot\nabla\psi - f\psi\right\\}dx = 0$$
+* The code expressed in the unified form language:
 ```python
-for step in range(num_steps):
-    h = mass_balance_solve(dt, thickness=h, velocity=u, ...)
-    u = momentum_balance_solve(velocity=u, thickness=h, ...)
-    T = energy_balance_solve(temperature=T, velocity=u, ...)
+F = (Dt(φ) * ψ + k * inner(grad(φ), grad(ψ)) - f * ψ) * dx
 ```
-* Things we're working on:
-  - How to make sure the thickness is positive?
-  - Can we get higher order w/monolithic schemes?
+
+----
+
+### Demonstration
+
+----
+
+### Consequences
+
+* User has to understand variational forms.
+* Once they do, [mapping](https://en.wikipedia.org/wiki/Cognitive_dimensions_of_notations) from math to code is direct.
+* The finite element tool is now a compiler (!)
 
 ----
 
@@ -273,25 +309,6 @@ for step in range(num_steps):
 
 * Software package for simulating glaciers in Python
 * Built on the finite element modeling library Firedrake
-
-----
-
-### Problems
-
-* Bad things happen when $\dot\varepsilon \to 0$ or $h \to 0$.
-* When $\dot\varepsilon \to 0$, $\mu \to \infty$.
-So we regularize:
-$$\mu = A^{-1/n}\sqrt{|\dot\varepsilon|\_{\mathscr{C}}^2 + \dot\varepsilon\_0^2}^{\frac{1}{n} - 1}$$
-* $h \to 0$ is a singular perturbation (yikes).
-* It also tends to make $\dot\varepsilon \to 0$.
-
-----
-
-### Missing pieces
-
-* How can we best couple all the conservation laws?
-* What do we do around 0 velocity or strain rate?
-* **What are the right numerics for calving?**
 
 
 
@@ -321,13 +338,8 @@ Simulation of Kangerlussuaq Glacier, SE Greenland
 
 ### Conclusions
 
-* Problems with similar characteristics:
-  - glaciers
-  - lava
-  - overland water flow
-  - unsaturated porous media
-  - plankton growth
-* Are there common numerical approaches?
+* New tools make it possible to lower the entry barrier for physical scientists to do sophisticated modeling.
+* What about our old ways of writing numerical software should change?
 
 ----
 
