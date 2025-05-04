@@ -1,6 +1,7 @@
 ---
 title: Glacier flow modeling with icepack
 theme: solarized
+highlightTheme: base16/solarized-light
 ---
 
 <img src="https://icepack.github.io/images/logo.svg">
@@ -15,11 +16,18 @@ shapero@uw.edu
 
 ----
 
+### Big picture
+
+* Numerical modeling in glaciology has been the domain of experts.
+* **Goal**: make a tool that a bigger audience can use.
+
+----
+
 ### Plan
 
-* Why we care about glaciers (10 min)
-* Glaciology and glacier physics (35 min)
-* The finite element method, Firedrake (20 min)
+* Glaciology and use of glacier models (10 min)
+* The finite element method; Firedrake (20 min)
+* Glacier physics (35 min)
 * Icepack demonstrations (45 min)
 
 
@@ -46,11 +54,29 @@ shapero@uw.edu
 
 ----
 
+### Example
+
+<img src="pine-island-imagery.png" width="55%"> <img src="pine-island-simulation.png" width="40%">
+
+<small>From Joughin et al. (2021), Ice-shelf retreat drives recent Pine Island Glacier speedup</small>
+
+----
+
 ### Why: water resources
 
 <img src="https://www.nps.gov/articles/000/images/MORA-Stream-Temp_Fig1_web.jpeg?maxwidth=1300&autorotate=false&quality=78&format=webp" width="80%">
 
 <small>Emmons Glacier on Mt. Rainier and the White River, from NPS</small>
+
+----
+
+### Example
+
+<img src="shigar-valley-map.png" width="55%">
+
+<img src="shigar-valley-simulation.png" width="30%">
+
+<small>From Haq et al. (2025), Cryo-social dynamics: the interplay of glacial dynamics and socioeconomic conditions in the Shigar Valley, Karakoram, Pakistan</small>
 
 ----
 
@@ -68,7 +94,20 @@ shapero@uw.edu
 
 ### Why: glacial geomorphology
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/D5uDaEpJHjE?si=TTWdjbizJccEtSm3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<img src="glacial-buzzsaw-simulation.png" width="70%">
+
+<small>From Egholm et al. (2009), Glacial effects limiting mountain height</small>
+
+----
+
+### Requirements
+
+* Glaciologists want:
+  - working solvers with no hand-tuning
+  - to do weird things with flow and sliding laws
+  - to couple to other fields, e.g. hydrology, landscape
+  - fine-grained control of the simulation
+* **How do we make modeling tools that are both flexible and user-friendly?**
 
 ----
 
@@ -82,7 +121,108 @@ Let's play with some data!
 
 ---
 
-# Balance laws
+# The finite element method
+
+----
+
+### The finite element method
+
+* Simulating glacier flow means solving differential equations (numerically)
+* A function $u$ can have $\infty$ degrees of freedom
+* FEM: approximate as a finite linear combination
+$$u \approx \sum\_i^NU\_i\phi\_i$$
+
+----
+
+<img src="https://cdn.comsol.com/cyclopedia/finite-element-method/discretization-heat-sink-model.png" width="70%">
+
+<small>from the COMSOL website</small>
+
+----
+
+<img src="https://cdn.comsol.com/cyclopedia/finite-element-method/base-functions-no-overlap.png" width="70%">
+
+<small>from the COMSOL website</small>
+
+----
+
+<img src="https://cdn.comsol.com/cyclopedia/finite-element-method/temperature-field-heat-sink-model.png" width="70%">
+
+<small>from the COMSOL website</small>
+
+----
+
+### The finite element method
+
+```python
+for cell in mesh:
+  A = <small matrix>
+  basis_fns = get_basis_fns(cell)
+  for quadrature_point in cell:
+    for φ_1 in basis_fns:
+      for φ_2 in basis_fns:
+        A += <heinous tensor algebra>
+
+  matrix[I, J] += A
+```
+* Implementing FEM $\rightarrow$ lots of low-level C/C++ code.
+* This has mostly been the province of experts.
+
+----
+
+<img src="fenics-logo.png" height="170px"> <img src="firedrake-logo.png" height="160px"> <img src="devito-logo.png" height="150px">
+
+* New tools like FEniCS, Firedrake, Devito, dune-fem:
+  - Express the PDE in a **domain-specific language**
+  - **Generate** the low-level C code for you
+* You still decide on discretization, solution strategy.
+
+----
+
+### Preview
+
+* The variational form of the diffusion equation for a field $u$: for all test functions $v$,
+$$\int\_\Omega\left(\partial\_tu\\, v + k\nabla u \cdot\nabla v - f\\,v\right)dx = 0$$
+* The code to express this:
+```python
+u = Function(Q)
+v = TestFunction(Q)
+eqn = (Dt(u) * v + k * inner(grad(u), grad(v)) - f * v) * dx
+```
+
+----
+
+### Pros/cons
+
+* Pros:
+  - code looks a lot like the math
+  - automatic differentiation
+  - easy to customize
+* Cons:
+  - loss of low-level control
+  - more complex software stack
+
+----
+
+### Firedrake
+
+<img src="firedrake-logo.png" height="160px">
+
+* Started out as an experiment on FEniCS
+* Slowly became own project as the core diverged
+* Main advantages:
+  - hipster elements
+  - tensor-product meshes
+
+----
+
+### Demonstration
+
+
+
+---
+
+# Glacier physics
 
 ----
 
@@ -197,7 +337,7 @@ $m$ is somewhere between $n$ and $\infty$, not really sure
 
 ### Energy balance
 
-* Finally, head conduction:
+* Finally, heat conduction:
 $$\partial\_t E + \nabla\cdot(Eu - k\nabla T) = Q$$
 * Which feeds back into the momentum balance:
 $$A \propto \exp(-Q / RT)$$
@@ -225,17 +365,6 @@ $$A \propto \exp(-Q / RT)$$
 
 ----
 
-### Requirements
-
-* Physical scientists want:
-  - working solvers with no hand-tuning
-  - to do weird things with flow and sliding laws
-  - to couple to other fields, e.g. hydrology, landscape
-  - fine-grained control of the simulation
-* **How do we make modeling tools that are both flexible and user-friendly?**
-
-----
-
 ### Summary
 
 * The things we need to get right:
@@ -245,64 +374,6 @@ $$A \propto \exp(-Q / RT)$$
   - $u$, $h$, $T$ $\rightarrow$ energy balance $\rightarrow$ $dT/dt$
 * This is a big differential-algebraic equation.
 * We can do all this with the finite element method.
-
-----
-### The finite element method
-
-* Students are familiar with differential equations.
-* The finite element method uses variational forms.
-* **We have a pedagogy problem.**
-
-----
-
-### Variational forms
-
-* Let $\phi$ be some field with flux $F$ and sources $Q$.
-* The differential form of a conservation law:
-$$\partial\_t\phi + \nabla\cdot F = Q$$
-* The variational form: for all test functions $\psi$,
-$$\int\_\Omega\left\\{\partial\_t\phi\\;\psi - F\cdot\nabla\psi - Q\\;\psi\right\\}dx + \ldots = 0$$
-
-----
-
-### The finite element method
-
-* FEM in a nutshell: approximate $\phi$ and $\psi$ in a finite-dimensional subspace.
-* Implementation $\rightarrow$ lots of low-level C/C++ code.
-* This has in the past been the province of experts.
-
-----
-
-<img src="fenics-logo.png" height="170px"> <img src="firedrake-logo.png" height="160px"> <img src="devito-logo.png" height="150px">
-
-* New tools like FEniCS, Firedrake, Devito, dune-fem:
-  - Express the PDE in a **domain-specific language**
-  - **Generate** the low-level C code for you
-* You still decide on discretization, solution strategy.
-
-----
-
-### Firedrake
-
-* Example: the diffusion equation for some field $\phi$.
-* Math: for all test functions $\psi$,
-$$\int_\Omega\left\\{\partial\_t \phi\cdot\psi + k\nabla\phi\cdot\nabla\psi - f\psi\right\\}dx = 0$$
-* The code expressed in the unified form language:
-```python
-F = (Dt(φ) * ψ + k * inner(grad(φ), grad(ψ)) - f * ψ) * dx
-```
-
-----
-
-### Demonstration
-
-----
-
-### Consequences
-
-* User has to understand variational forms.
-* Once they do, [mapping](https://en.wikipedia.org/wiki/Cognitive_dimensions_of_notations) from math to code is direct.
-* The finite element tool is now a compiler (!)
 
 ----
 
