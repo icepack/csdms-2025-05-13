@@ -367,6 +367,18 @@ $$A \propto \exp(-Q / RT)$$
 
 ### Summary
 
+| Description |      |Equation |
+| ----------- | ---- |-------: |
+| Mass | | $\partial\_th + \nabla\cdot hu = \dot a - \dot m$ |
+| Momentum | | $\nabla\cdot hM + \tau - \rho g h\nabla s = 0$ |
+| Flow law | | $\dot\varepsilon = 2A\|M\|\_{\mathscr A}^{n - 1}\mathscr AM$ |
+| Sliding law | | $u = -K\|\tau\|^{m - 1}\tau$ |
+| Energy | | $\partial\_tE + \nabla\cdot (E u - k\nabla T) = Q$ |
+
+----
+
+### Summary
+
 * The things we need to get right:
   - $h$ $\rightarrow$ climate $\rightarrow$ $\dot a$, $\dot m$
   - $u$, $h$ $\rightarrow$ mass balance $\rightarrow$ $dh/dt$
@@ -377,16 +389,33 @@ $$A \propto \exp(-Q / RT)$$
 
 ----
 
+### History
+
+* 2013: Started writing a glacier model in C++.
+* 2017: I get a postdoc to turn it into a usable library.
+* Problem: glaciologists don't like C++.
+  - **Q**: How fast could I rewrite 3 years of thesis code using Firedrake?
+  - **A**: 6 weeks give or take
+* 2019: Other people start using it, I get an NSF grant \& become a PI at APL
+
+----
+
+### Some observations
+
+* Numerical methods classes teach you how to solve common PDEs really fast in parallel.
+* Many problems in the geosciences are 2D but weird.
+* For many students, **physics $\rightarrow$ code is the hard part**.
+
+----
+
 <img src="https://icepack.github.io/images/logo.svg">
 
-* Software package for simulating glaciers in Python
-* Built on the finite element modeling library Firedrake
-
-
-
----
-
-# Terminus evolution
+* Library for simulating glaciers, built on Firedrake
+* Design goals:
+  - low-level control of what a simulation does
+  - able to largely ignore how it's done
+  - close mapping from mental model $\rightarrow$ API
+  - easy to alter / add physics
 
 ----
 
@@ -399,6 +428,10 @@ LeConte Glacier, Alaska
 Simulation of Kangerlussuaq Glacier, SE Greenland
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/01Kvp7Hoego?si=Jv3x-cdhmf6xo_dp" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+----
+
+### Demonstrations
 
 
 
