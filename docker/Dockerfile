@@ -11,6 +11,7 @@ RUN cd $PETSC_DIR && \
 
 RUN apt update && \
     apt install -yq \
+        ffmpeg \
         libglu1-mesa-dev \
         libxrender-dev \
         libxcursor-dev \
