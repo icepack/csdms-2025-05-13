@@ -340,7 +340,7 @@ $m$ is somewhere between $n$ and $\infty$, not really sure
 * Finally, heat conduction:
 $$\partial\_t E + \nabla\cdot(Eu - k\nabla T) = Q$$
 * Which feeds back into the momentum balance:
-$$A \propto \exp(-Q / RT)$$
+$$A \propto \exp(-E\_a / RT)$$
 
 ----
 
@@ -419,6 +419,14 @@ $$A \propto \exp(-Q / RT)$$
 
 ----
 
+### New developments
+
+* Simulating terminus evolution has always been hard.
+* We can do that with icepack now, but...
+* ...in the process I realized everything about how we simulate glaciers needs to change
+
+----
+
 <iframe width="560" height="315" src="https://www.youtube.com/embed/TWGR6FxFlt8?si=rTZGByPomHoLMCWy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 LeConte Glacier, Alaska
@@ -433,6 +441,7 @@ Simulation of Kangerlussuaq Glacier, SE Greenland
 
 ### Demonstrations
 
+of a model that is in a state of rapid flux
 
 
 ---
