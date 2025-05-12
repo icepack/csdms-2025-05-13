@@ -9,6 +9,14 @@ RUN cd $PETSC_DIR && \
         --download-parmmg && \
     make PETSC_DIR=${PETSC_DIR} PETSC_ARCH=${PETSC_ARCH} all
 
+RUN apt update && \
+    apt install -yq \
+        libglu1-mesa-dev \
+        libxrender-dev \
+        libxcursor-dev \
+        libxft-dev \
+        libxinerama-dev
+
 RUN python3 -m pip install ipykernel jupyter jupyterlab && \
     python3 -m ipykernel install --name=firedrake
 
