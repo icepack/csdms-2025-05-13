@@ -29,5 +29,5 @@ g.set_parameters({"dm_plex_metric": {"hausdorff_number": 10.0}})
 new_mesh = animate.adapt(mesh, g)
 print(new_mesh.num_vertices())
 
-with firedrake.CheckpointFile("mountain-glacier-2.h5", "w") as chk:
+with firedrake.CheckpointFile("aniso-mesh.h5", "w") as chk:
     chk.save_mesh(new_mesh)
